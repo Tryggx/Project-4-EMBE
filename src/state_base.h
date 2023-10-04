@@ -2,6 +2,7 @@
 #define STATE_BASE_H
 
 #include <Arduino.h>
+#include "hwconfig.h"
 class Context; // Forward declaration to allow the definition of a pointer to Context without compile error
 class State
 {
@@ -46,11 +47,12 @@ class Context
 
 private:
   State *state_;
-
 public:
-  Context(State *state) : state_(nullptr)
+  HardwareConfig *io;
+  Context(State *state, HardwareConfig *hwconfig) : state_(nullptr)
   {
     this->transition_to(state);
+    this->io = hwconfig;
   }
 
   ~Context()

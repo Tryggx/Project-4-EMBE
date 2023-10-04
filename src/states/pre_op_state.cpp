@@ -1,6 +1,16 @@
 #include "pre_op_state.h"
 #include "init_state.h"
 
+void Pre_op_state::on_do()
+{
+
+  if (millis() - this->last_time > 500)
+  {
+    this->last_time = millis();
+    this->context_->io->led.toggle();
+  }
+}
+
 void Pre_op_state::on_start()
 {
   Serial.println("Starting");

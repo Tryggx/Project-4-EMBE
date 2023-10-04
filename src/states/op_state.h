@@ -1,9 +1,11 @@
-#ifndef PRE_OP_STATE_H
-#define PRE_OP_STATE_H
+#ifndef OP_STATE_H
+#define OP_STATE_H
 #include "state_base.h"
-class Pre_op_state : public State
+class Op_state : public State
 {
 public:
+    volatile double motor_pwm = 0;
+    uint32_t last_control_time = 0; 
     unsigned long last_time = 0;
     void on_do() override;
     void on_entry() override;

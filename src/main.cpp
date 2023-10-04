@@ -1,5 +1,19 @@
+#define FAULT_PIN 23
+#define LED_PIN 13
+#define ENCODER_PIN_A 9
+#define ENCODER_PIN_B 10
+#define MOTOR_PIN 6
+#define GEAR_RATIO 100.0
+#define PPR 7
+#define PI_KP 0.1
 #include <Arduino.h>
 #include <util/delay.h>
+#include "digital_in.h"
+#include "states/init_state.h"
+#include "digital_out.h"
+#include "analog_out.h"
+#include "encoder.h"
+#include "PI_controller.h"
 
 // State Behaviour based on the C++ example at Refactoring Guru
 
@@ -10,11 +24,16 @@
  * Context to another State.
  */
 
-#include "states/init_state.h"
-//#include "states/pre_op_state.h"
-
 int timer = -1;
-
+Digital_out m2(6);
+HardwareConfig hw_config = HardwareConfig(LED_PIN,
+                                          MOTOR_PIN,
+                                          ENCODER_PIN_A,
+                                          ENCODER_PIN_B,
+                                          FAULT_PIN,
+                                          GEAR_RATIO,
+                                          PPR,
+                                          PI_KP);
 // Application
 
 Context *context;
@@ -22,14 +41,14 @@ Context *context;
 int main()
 {
   init(); // Has to be included for Serial.available() to work
-  context = new Context(new Init_state);
+  m2.init();
+  m2.set_lo();
+  context = new Context(new Init_state, &hw_config);
   Serial.begin(9600);
 
   while (true)
   {
-    // wait for some time
     context->do_work();
-
     if (Serial.available() > 0)
     {
       // read the incoming byte:
@@ -58,4 +77,25 @@ int main()
   }
 
   delete context;
+}
+ISR(PCINT0_vect)
+{
+  context->io->encoder.onChange();
+  context->io->led.toggle();
+}
+
+ISR(TIMER0_COMPA_vect)
+{
+  // We use 5us as the time step, easier math and accurate enough
+  context->io->encoder.timer.micros += 5;
+}
+
+ISR(TIMER1_COMPA_vect)
+{
+  OCR1B ? context->io->motor.dout.set_hi() : context->io->motor.dout.set_lo();
+}
+
+ISR(TIMER1_COMPB_vect)
+{
+  OCR1A > OCR1B ? context->io->motor.dout.set_lo() : context->io->motor.dout.set_hi();
 }

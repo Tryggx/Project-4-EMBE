@@ -3,6 +3,7 @@
 #include "state_base.h"
 class Init_state : public State
 {
+
 public:
     void on_do() override;
     void on_entry() override;
