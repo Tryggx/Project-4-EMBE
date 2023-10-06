@@ -10,7 +10,6 @@ void Init_state::on_do()
 {
   Serial.println("Currently initializing");
   this->context_->io->motor.set(0);
-  delay(3000);
   /*       void init_hardware(uint8_t led_pin,
                      uint8_t analog_out_pin,
                      uint8_t encoder_pinA,
@@ -25,7 +24,7 @@ void Init_state::on_do()
   this->context_->io->encoder.init();
   this->context_->io->fault_pin.init();
   Serial.println("Done initializing");
-  this->context_->transition_to(new Op_state);
+  this->context_->transition_to(new Pre_op_state);
 }
 void Init_state::on_entry()
 {

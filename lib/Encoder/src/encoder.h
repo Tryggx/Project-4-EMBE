@@ -16,7 +16,7 @@ public:
 
 public:
     float ang_vel;
-    Timer_usec timer;
+    //Timer_usec timer;
 
 private:
     float rpm;

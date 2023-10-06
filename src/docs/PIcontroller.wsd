@@ -1,0 +1,26 @@
+@startuml
+
+start
+
+:Calculate error between setpoint and measured value;
+
+if (Is controller saturated?) then (Yes)
+  :Do not integrate error;
+else (No)
+  :Integrate the error;
+endif
+
+:Calculate controller output using PI formula;
+
+if (Is output outside bounds?) then (Yes)
+  :Set output to max/min allowable value;
+  :Mark controller as saturated;
+else (No)
+  :Continue;
+endif
+
+:Return controller output;
+
+stop
+
+@enduml

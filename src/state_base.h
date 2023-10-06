@@ -48,6 +48,7 @@ class Context
 private:
   State *state_;
 public:
+  bool disable_main_serial_input = false;
   HardwareConfig *io;
   Context(State *state, HardwareConfig *hwconfig) : state_(nullptr)
   {

@@ -1,11 +1,13 @@
-#define FAULT_PIN 23
+#define FAULT_PIN 21
 #define LED_PIN 13
 #define ENCODER_PIN_A 9
 #define ENCODER_PIN_B 10
 #define MOTOR_PIN 6
 #define GEAR_RATIO 100.0
 #define PPR 7
-#define PI_KP 0.1
+#define PI_KP 0.02
+const double RPM_MAX = 105;
+const double RPM_MIN = -RPM_MAX;
 #include <Arduino.h>
 #include <util/delay.h>
 #include "digital_in.h"
@@ -40,16 +42,16 @@ Context *context;
 
 int main()
 {
-  init(); // Has to be included for Serial.available() to work
   m2.init();
   m2.set_lo();
   context = new Context(new Init_state, &hw_config);
+  init(); // Has to be included for Serial.available() to work
   Serial.begin(9600);
 
   while (true)
   {
     context->do_work();
-    if (Serial.available() > 0)
+    if (Serial.available() > 0 && context->disable_main_serial_input == false)
     {
       // read the incoming byte:
       int command = Serial.read();
@@ -72,6 +74,7 @@ int main()
       {
         Serial.println("Received unknown command: ");
         Serial.println(command);
+        Serial.println(millis());
       }
     }
   }
@@ -81,14 +84,13 @@ int main()
 ISR(PCINT0_vect)
 {
   context->io->encoder.onChange();
-  context->io->led.toggle();
 }
 
-ISR(TIMER0_COMPA_vect)
-{
-  // We use 5us as the time step, easier math and accurate enough
-  context->io->encoder.timer.micros += 5;
-}
+// ISR(TIMER0_COMPA_vect)
+// {
+//   // We use 5us as the time step, easier math and accurate enough
+//   context->io->encoder.timer.micros += 5;
+// }
 
 ISR(TIMER1_COMPA_vect)
 {

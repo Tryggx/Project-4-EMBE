@@ -26,7 +26,7 @@ void Encoder::init()
     PCMSK0 |= (1 << encoderPin1 % 8);
     sei();
     currentPos = 0;
-    timer.init();
+    //timer.init();
 }
 void Encoder::onChange()
 {
@@ -35,8 +35,8 @@ void Encoder::onChange()
     if (val) {
         rpmCounter++;
         if (rpmCounter >= 10) {
-        tempRpm =  600000000.0 / ((timer.micros - lastPulse) * pulsesPerRev * gearRatio);
-        lastPulse = timer.micros;
+        tempRpm =  600000000.0 / ((micros() - lastPulse) * pulsesPerRev * gearRatio);
+        lastPulse = micros();
         rpmCounter = 0;
         }
     }
@@ -76,7 +76,7 @@ bool Encoder::pollEncoder()
 
 float Encoder::getRpm()
 {
-    if (timer.micros - lastPulse > 1000000)
+    if (micros() - lastPulse > 1000000)
     {
         rpm = 0;
     }

@@ -1,11 +1,26 @@
 #pragma once
-class PI_controller
+#include "P_controller.h"
+
+class PI_controller : public P_controller
 {
 public:
-    double update(double ref, double actual);
-    PI_controller(double Kp);
+    PI_controller(double Kp, double integrationTime, double timeStep);
+    double update(double ref, double actual) override;
+    void reset_integral();
+    void set_Kp(double Kp);
+    void set_Ti(double Ti);
+    double get_Ti();
+    double get_Kp();
+    double get_integral();
 
 private:
-    volatile double Kp;
+    double integration_time;
+    double Kp = 0.0;
+    double time_step;
+    double previous_error = 0.0;
+    double integral = 0.0;
+    bool is_saturated = false;
 
+    const double PWM_MAX = 105.0;
+    const double PWM_MIN = -105.0;
 };

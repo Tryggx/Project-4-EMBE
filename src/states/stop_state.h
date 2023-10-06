@@ -1,7 +1,7 @@
-#ifndef PRE_OP_STATE_H
-#define PRE_OP_STATE_H
+#ifndef STOP_STATE_H
+#define STOP_STATE_H
 #include "state_base.h"
-class Pre_op_state : public State
+class Stop_state : public State
 {
 public:
     unsigned long last_time = 0;
@@ -18,11 +18,5 @@ public:
     void on_set_pre_operational() override
     {
     }
-
-private:
-    int current_step = 0;
-    bool first_run = true;
-    char input_buffer[32];
-    int input_buffer_index = 0;
 };
 #endif // INIT_STATE_H
