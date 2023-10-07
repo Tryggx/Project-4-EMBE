@@ -12,6 +12,8 @@ public:
     double get_Ti();
     double get_Kp();
     double get_integral();
+    bool is_saturated = false;
+    
 
 private:
     double integration_time;
@@ -19,7 +21,6 @@ private:
     double time_step;
     double previous_error = 0.0;
     double integral = 0.0;
-    bool is_saturated = false;
 
     const double PWM_MAX = 105.0;
     const double PWM_MIN = -105.0;

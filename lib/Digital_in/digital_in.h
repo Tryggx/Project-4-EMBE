@@ -12,6 +12,8 @@ public:
 private:
     uint8_t pinMask;
     volatile uint8_t *port;
+    volatile uint8_t *ddr;
+    volatile uint8_t *pin;
 };
 
 #endif

@@ -44,13 +44,14 @@ int main()
 {
   m2.init();
   m2.set_lo();
-  context = new Context(new Init_state, &hw_config);
   init(); // Has to be included for Serial.available() to work
   Serial.begin(9600);
+  context = new Context(new Init_state, &hw_config);
 
   while (true)
   {
     context->do_work();
+  
     if (Serial.available() > 0 && context->disable_main_serial_input == false)
     {
       // read the incoming byte:

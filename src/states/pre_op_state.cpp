@@ -59,6 +59,7 @@ void Pre_op_state::on_do()
         this->context_->io->controller.set_Ti(atof(this->input_buffer));
         this->input_buffer_index = 0;
         this->current_step++;
+        this->first_run = true;
       }
       else
       {
@@ -69,8 +70,22 @@ void Pre_op_state::on_do()
   }
   if (this->current_step == 2)
   {
+    if (this->first_run)
+    {
+      Serial.println("Enter 'o' to start the motor:");
+      this->first_run = false;
+      Serial.flush();
+      this->input_buffer_index = 0;
+    }
     this->context_->disable_main_serial_input = false;
-    this->context_->transition_to(new Op_state);
+    if (Serial.available() > 0)
+    {
+      char current = Serial.read();
+      if (current == 'o')
+      {
+        this->context_->transition_to(new Op_state);
+      }
+    }
   }
 }
 

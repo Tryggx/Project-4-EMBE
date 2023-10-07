@@ -26,7 +26,7 @@ public:
         motor(analog_out_pin),
         encoder(encoder_pinA, encoder_pinB, gear_ratio, ppr),
         fault_pin(fault_pin_pin),
-        controller(3.6, 92, 1)
+        controller(3.6, 92, 0.004)
   {
   }
 };

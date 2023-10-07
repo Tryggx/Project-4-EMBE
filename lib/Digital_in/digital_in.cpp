@@ -1,31 +1,38 @@
 #include "digital_in.h"
 
-Digital_in::Digital_in(uint8_t pin)
+Digital_in::Digital_in(uint8_t set_pin)
 {
-    pinMask = (1 << pin % 8);
-    if (pin / 8 == 0)
+    pinMask = (1 << set_pin % 8);
+    if (set_pin / 8 == 0)
     {
-        port = &PIND;
+        pin = &PIND;
+        port = &PORTD;
+        ddr = &DDRD;
     }
-    else if (pin / 8 == 1)
+    else if (set_pin / 8 == 1)
     {
-        port = &PINB;
+        pin = &PINB;
+        port = &PORTB;
+        ddr = &DDRB;
     }
-    else if (pin / 8 == 2)
+    else if (set_pin / 8 == 2)
     {
-        port = &PINC;
+        pin = &PINC;
+        port = &PORTC;
+        ddr = &DDRC;
     }
         
 }
 
 void Digital_in::init()
 {
-    *port &= ~pinMask; // set as input
+    *port |= pinMask;
+    *ddr &= ~pinMask;
 }
 
 bool Digital_in::is_hi()
 {
-    return *port & pinMask;
+    return *pin & pinMask;
 }
 
 bool Digital_in::is_lo()

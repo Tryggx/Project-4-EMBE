@@ -29,7 +29,6 @@ void test_integral_control(void)
     TEST_ASSERT_TRUE(controller.get_integral() > 0.0);
 }
 
-
 void test_setting_and_getting_parameters(void)
 {
     PI_controller controller(1.0, 1.0, 0.1);
@@ -39,12 +38,19 @@ void test_setting_and_getting_parameters(void)
     TEST_ASSERT_EQUAL_DOUBLE(2.0, controller.get_Ti());
 }
 
-void test_integral_windup(void) {
+void test_integral_windup(void)
+{
     PI_controller controller(1.0, 100, 1);
 
     // Force saturation for multiple iterations
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 1000; i++)
+    {
         controller.update(60.0, 0.0);
+        // break the loop as soon as it saturates
+        if (controller.is_saturated)
+        {
+            break;
+        }
     }
 
     // Check that the integral hasn't winded up excessively

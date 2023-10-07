@@ -3,7 +3,6 @@
 #include "op_state.h"
 void Init_state::on_start()
 {
-  Serial.println("Starting Init State");
 }
 
 void Init_state::on_do()
@@ -28,5 +27,5 @@ void Init_state::on_do()
 }
 void Init_state::on_entry()
 {
-  Serial.println("State is now INIT");
+  Serial.println("Booted, initializing hardware");
 }

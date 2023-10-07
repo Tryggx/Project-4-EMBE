@@ -20,5 +20,7 @@ public:
     void on_set_pre_operational() override
     {
     }
+private:
+    double ref_rpm = 70.0;
 };
 #endif // INIT_STATE_H
