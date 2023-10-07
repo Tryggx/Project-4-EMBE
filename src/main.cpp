@@ -51,22 +51,12 @@ int main()
   while (true)
   {
     context->do_work();
-  
+
     if (Serial.available() > 0 && context->disable_main_serial_input == false)
     {
       // read the incoming byte:
       int command = Serial.read();
-      if (command == 'g')
-      {
-        Serial.println("Received go command");
-        context->start_event();
-      }
-      else if (command == 's')
-      {
-        Serial.println("Received stop command");
-        context->stop_event();
-      }
-      else if (command == 'r')
+      if (command == 'r')
       {
         Serial.println("Received reset command");
         context->reset_event();
