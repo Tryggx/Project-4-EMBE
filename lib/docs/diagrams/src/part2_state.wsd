@@ -1,0 +1,34 @@
+@startuml state
+    
+    [*] --> Initialization
+    Initialization --> Operational: Initialization\n Completed 
+    ' Pre_Operational --> Operational: Command: Operational
+    ' Operational --> Pre_Operational: Command: Pre_Operational
+    Operational --> Initialization: Command: Reset
+    Operational --> Stopped: Fault \n Detected
+    Stopped --> Operational: Command: \n Clear Fault
+    
+
+    state Initialization {
+        state "Init" as Initialization
+        Initialization: State: Initialization
+    }
+    state Operational {
+        state "Operational" as Operational
+        Operational: State: Operational
+        Operational: Task: Led On
+    }
+
+    ' state Pre_Operational {
+    '     state "Pre_Operational" as Pre_Operational
+    '     Pre_Operational: State: Pre_Operational
+    '     Pre_Operational: Task: Blink LED 1 Hz
+    ' }
+
+    state Stopped {
+        state "Stopped" as Stopped
+        Stopped: State: Stopped
+        Stopped: Task: Led Off
+    }
+
+@enduml
