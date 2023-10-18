@@ -16,7 +16,7 @@ int main()
     close(fd);
 
     //enable gpio17
-    int fd = open("/sys/class/gpio/export", O_WRONLY);
+    fd = open("/sys/class/gpio/export", O_WRONLY);
     write(fd, "17", 2);
     close(fd);
 
@@ -25,10 +25,11 @@ int main()
     write(fd, "out", 3);
     close(fd);
 
-    fd13 = open("/sys/class/gpio/gpio13/value", O_RDONLY);
-    fd17 = open("/sys/class/gpio/gpio17/value", O_WRONLY);
+    //int fd13 = open("/sys/class/gpio/gpio13/value", O_RDONLY);
+    //int fd17 = open("/sys/class/gpio/gpio17/value", O_WRONLY);
 
 
+        char c;
     while(1)
     {
         // //Wait for event
@@ -43,11 +44,13 @@ int main()
         //     if(c == '0')
         //         printf("Push\n");
         //     else
-        //         printf("Release\n");
-        char c;
-        read(fd13, &c, 1);
+        //         printf("Release\n");'
+        int fd = open("/sys/class/gpio/gpio13/value", O_RDONLY);
+        read(fd, &c, 1);
+        close(fd);
+        int fd17 = open("/sys/class/gpio/gpio17/value", O_WRONLY);
         write(fd17, &c, 1);
-
+        close(fd17);
     }
 
     //Disable gpio25
