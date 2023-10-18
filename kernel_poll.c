@@ -15,14 +15,10 @@ int main()
     write(fd, "in", 2);
     close(fd);
 
-    //Set gpio13 interrupt
-    fd = open("/sys/class/gpio/gpio13/edge", O_WRONLY);
-    //write(fd, "falling", 7);
-    write(fd, "both", 4);
-    close(fd);
+
 
     //enable gpio17
-    int fd = open("/sys/class/gpio/export", O_WRONLY);
+    fd = open("/sys/class/gpio/export", O_WRONLY);
     write(fd, "17", 2);
     close(fd);
 
@@ -31,24 +27,30 @@ int main()
     write(fd, "out", 3);
     close(fd);
 
-    fd13 = open("/sys/class/gpio/gpio13/value", O_RDONLY);
-    fd17 = open("/sys/class/gpio/gpio17/value", O_WRONLY);
+    //Set gpio13 interrupt
+    fd = open("/sys/class/gpio/gpio13/edge", O_WRONLY);
+    //write(fd, "falling", 7);
+    write(fd, "both", 4);
+    close(fd);
 
+    struct pollfd pfd;
+    pfd.fd = fd;
+    pfd.events = POLLPRI;
 
     while(1)
     {
         //Wait for event
-        fd = open("/sys/class/gpio/gpio25/value", O_RDONLY);       
+        fd = open("/sys/class/gpio/gpio13/value", O_RDONLY);       
         int ret = poll(&pfd, 1, 3000);
         char c;
-        read(fd13, &c, 1);
+        read(fd, &c, 1);
         close(fd);
         if(ret == 0)
             printf("Timeout\n");
         else
-            write(fd17, &c, 1);
-
-
+            fd = open("/sys/class/gpio/gpio17/value", O_WRONLY);
+            write(fd, &c, 1);
+            close(fd);
     }
 
     //Disable gpio25
