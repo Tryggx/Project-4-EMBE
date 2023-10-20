@@ -4,7 +4,6 @@ class P_controller
 {
 public:
     virtual double update(double ref, double actual);
-    P_controller(double Kp);
 
 private:
     volatile double Kp;
@@ -12,11 +11,11 @@ private:
 };
 
 
-class PI_controller : public P_controller
+class PI_controller
 {
 public:
     PI_controller(double Kp, double integrationTime, double timeStep);
-    double update(double ref, double actual) override;
+    double update(double ref, double actual);
     void reset_integral();
     void set_Kp(double Kp);
     void set_Ti(double Ti);

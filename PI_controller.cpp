@@ -1,8 +1,7 @@
 #include "PI_controller.h"
-#include <Arduino.h>
 
 PI_controller::PI_controller(double Kp, double integrationTime, double timeStep)
-    : P_controller(Kp), integration_time(integrationTime), time_step(timeStep)
+    : integration_time(integrationTime), time_step(timeStep)
 {
     this->Kp = Kp;
     reset_integral();

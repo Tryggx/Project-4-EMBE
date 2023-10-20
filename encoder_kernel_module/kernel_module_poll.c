@@ -13,7 +13,8 @@ MODULE_VERSION("0.1");
 
 static unsigned int gpioEncoder = 13;          // GPIO13 
 static unsigned int irqNumber;                // share IRQ num within file 
-static unsigned int numberPulses = 0;        // store number of presses 
+static unsigned int numberPulses = 0;        // store number of presses
+static unsigned int measuredOutput = 17 ; // GPIO17
 
 static int majorNumber;
 static ssize_t mydev_write(struct file * file, const char *buf, size_t count, loff_t *ppos);
@@ -41,12 +42,19 @@ static int __init encoder_counter_init(void)
         printk(KERN_INFO "GPIO_TEST: invalid Encoder GPIO\n");
         return -ENODEV;
     } 
-
-
     gpio_request(gpioEncoder, "sysfs");       // set up gpioEncoder   
     gpio_direction_input(gpioEncoder);        // set up as input   
-    //gpio_set_debounce(gpioEncoder, 200);      // no debounce for encoder
     gpio_export(gpioEncoder, false);          // appears in /sys/class/gpio
+
+    //for feedback, on gpio 17
+    if (!gpio_is_valid(measuredOutput)) 
+    {
+        printk(KERN_INFO "GPIO_TEST: invalid Measured Output GPIO\n");
+        return -ENODEV;
+    }
+    gpio_request(measuredOutput, "sysfs");       // set up gpioEncoder
+    gpio_direction_output(measuredOutput, 0);        // set up as output
+    gpio_export(measuredOutput, false);          // appears in /sys/class/gpio
 
     printk(KERN_INFO "GPIO_TEST: button value is currently: %d\n", 
            gpio_get_value(gpioEncoder));
@@ -81,6 +89,7 @@ static irq_handler_t encoder_counter_irq_handler(unsigned int irq,
                                            void *dev_id, struct pt_regs *regs) 
 {   
     int current_state = gpio_get_value(gpioEncoder);
+    gpio_set_value(measuredOutput, current_state);
     if (current_state)
         numberPulses++;          // global counter
     return (irq_handler_t) IRQ_HANDLED;      // announce IRQ handled 
@@ -91,14 +100,22 @@ static ssize_t mydev_read(struct file * file, char *buf, size_t count, loff_t *p
     int res = 0;
     if (*ppos != 0)
         return 0;
+    
+    // convert to string
+    char numberPulsesString[11]; // Account for potential maximum size of int + null terminator
+    int len = snprintf(numberPulsesString, sizeof(numberPulsesString), "%d", numberPulses);
+    
+    if(len > count)  // this checks if the user buffer can hold our data
+        return -EFAULT;
 
-    res = copy_to_user(buf, &numberPulses, sizeof(numberPulses));
+    res = copy_to_user(buf, numberPulsesString, len);
     if (res != 0)
         return -EFAULT;
-    return sizeof(numberPulses);
-    *ppos += sizeof(numberPulses);
 
+    *ppos = len;  // update the position in the open file
+    return len;
 }
+
 
 //write does nothing for now
 static ssize_t mydev_write(struct file * file, const char *buf, size_t count, loff_t *ppos)
