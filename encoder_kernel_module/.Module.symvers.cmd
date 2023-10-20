@@ -1,0 +1,1 @@
+cmd_/home/olistarri/Project-4-EMBE/encoder_kernel_module/Module.symvers :=  sed 's/ko$$/o/'  /home/olistarri/Project-4-EMBE/encoder_kernel_module/modules.order | scripts/mod/modpost -m -a    -o /home/olistarri/Project-4-EMBE/encoder_kernel_module/Module.symvers -e -i Module.symvers -T - 

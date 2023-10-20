@@ -18,7 +18,8 @@ static unsigned int numberPulses = 0;        // store number of presses
 static int majorNumber;
 static ssize_t mydev_write(struct file * file, const char *buf, size_t count, loff_t *ppos);
 //also read
-static ssize_t mydev_read(struct file *, char *, size_t, loff_t *);
+static ssize_t mydev_read(struct file * file, char *buf, size_t count, loff_t *ppos);
+
 static struct file_operations fops = {
     .read = mydev_read,
     .write = mydev_write,
@@ -30,8 +31,9 @@ static irq_handler_t  encoder_counter_irq_handler(unsigned int irq,
 
 static int __init encoder_counter_init(void) 
 {
-    majorNumber = register_chrdev(DEVICE_MAJOR, DEVICE_NAME, &fops);
     int result = 0;
+    majorNumber = register_chrdev(DEVICE_MAJOR, DEVICE_NAME, &fops);
+    printk("Major number is: %d\n", majorNumber);
     printk(KERN_INFO "ENCODER PULSE COUNTER INIT\n");
 
     if (!gpio_is_valid(gpioEncoder)) 
@@ -84,12 +86,15 @@ static irq_handler_t encoder_counter_irq_handler(unsigned int irq,
     return (irq_handler_t) IRQ_HANDLED;      // announce IRQ handled 
 }
 //read returns the current number of pulses
-static ssize_t mydev_read(struct file * file, const char *buf, size_t count, loff_t *ppos)
+static ssize_t mydev_read(struct file * file, char *buf, size_t count, loff_t *ppos)
 {
+    int res = 0;
     if (*ppos != 0)
         return 0;
 
-    copy_to_user(buf, &numberPulses, sizeof(numberPulses));
+    res = copy_to_user(buf, &numberPulses, sizeof(numberPulses));
+    if (res != 0)
+        return -EFAULT;
     return sizeof(numberPulses);
     *ppos += sizeof(numberPulses);
 
