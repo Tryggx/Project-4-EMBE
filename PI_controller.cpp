@@ -18,9 +18,9 @@ double PI_controller::update(double ref, double actual)
         output = 0;
         is_saturated = true;
     }
-    else if (output >= 105)
+    else if (output >= 120)
     {
-        output = 105;
+        output = 120;
         is_saturated = true;
     }
     else
@@ -28,7 +28,10 @@ double PI_controller::update(double ref, double actual)
         is_saturated = false;
     }
 
-    is_saturated ? integral = 0.0 : integral += error * time_step;
+    if(!is_saturated) {
+    integral += error * time_step;
+    }
+
     return output;
 }
 void PI_controller::reset_integral()

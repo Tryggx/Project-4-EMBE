@@ -11,7 +11,7 @@ MODULE_AUTHOR("Friðrik - Ólafur - Sindri");
 MODULE_DESCRIPTION("An encoder driver to count pulses"); 
 MODULE_VERSION("0.1");
 
-static unsigned int gpioEncoder = 13;          // GPIO13 
+static unsigned int gpioEncoder = 19;          // GPIO13 
 static unsigned int irqNumber;                // share IRQ num within file 
 static unsigned int numberPulses = 0;        // store number of presses
 static unsigned int measuredOutput = 17 ; // GPIO17
