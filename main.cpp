@@ -14,8 +14,7 @@ double gearRatio = 100;
 double pulsesPerRev = 7;
 int time_between_reads = 50000;
 char pwm_pin[3] = "12";
-int motor_pin1 = 23;
-int motor_pin2 = 24;
+int motor_pin_dir = 24;
 int read_encoder()
 {
     while (1)
@@ -32,8 +31,8 @@ int read_encoder()
 
 int main()
 {
-  PI_controller pi = PI_controller(1.6, 0.2, 0.05);
-  double ref_rpm = 50.0;
+  PI_controller pi = PI_controller(0.6, 0.2, 0.05);
+  double ref_rpm = 119.0;
   int fd = open("/sys/class/pwm/pwmchip0/export", O_WRONLY);
   write(fd, "0", 1);
   close(fd);
@@ -42,9 +41,6 @@ int main()
   //use pwm_pin
   write(fd, pwm_pin, 2);
   close(fd);
-  // fd = open("/sys/class/gpio/gpio13/direction", O_WRONLY);
-  // write(fd, "out", 3);
-  // close(fd);
   //Set period to 100000
   fd = open("/sys/class/pwm/pwmchip0/pwm0/period", O_WRONLY);
   write(fd, "100000", 6);
@@ -58,12 +54,10 @@ int main()
   write(fd, "1", 1);
   close(fd);
 
-
-
   fd  = open("/sys/class/gpio/export", O_WRONLY);
-  char motor_pin2_string[3];
-  sprintf(motor_pin2_string, "%d", motor_pin2);
-  write(fd, motor_pin2_string, 2);
+  char motor_pin_dir_string[3];
+  sprintf(motor_pin_dir_string, "%d", motor_pin_dir);
+  write(fd, motor_pin_dir_string, 2);
   close(fd);
 
   fd = open("/sys/class/gpio/gpio24/direction", O_WRONLY);
@@ -81,30 +75,46 @@ int main()
     first_reading = read_encoder();
     usleep(time_between_reads);
     second_reading = read_encoder();
-    printf("First reading: %d\n", first_reading);
-    printf("Second reading: %d\n", second_reading);
     //calculate rpm from encoder count
     // 7 pulses per revolution, gear ratio 100, 60 seconds per minute
     //pulses should be 7*100 times per rev
     int pulses = second_reading - first_reading;
     double pulses_per_second = pulses / (time_between_reads / 1000000.0);
-    double current_rpm = (pulses_per_second * 60.0) / (pulsesPerRev * gearRatio);
+    double current_rpm = (pulses_per_second * 60.0) / (pulsesPerRev * gearRatio * 4);
     double pi_output = pi.update(ref_rpm, current_rpm);
-    int fd = open("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", O_WRONLY);
     //pi_output is new rpm, divide by 120
-    double new_rpm = (pi_output/120.0) * 100000.0;
+    double new_duty = (pi_output/120.0) * 100000.0;
     char pi_output_string[10];
-    printf("New RPM: %f\n", new_rpm);
-    if (new_rpm > 100000.0){
-      new_rpm = 100000.0;
+    printf("New duty cycle: %d\n", (int)new_duty);
+    if (new_duty > 100000.0){
+      new_duty = 100000.0;
     }
-    sprintf(pi_output_string, "%d", (int)new_rpm);
+    if (new_duty < 0.0){
+      //invert pwm and invert the motor_pin_dir
+      new_duty = -new_duty;
+      fd = open("/sys/class/gpio/gpio24/value", O_WRONLY);
+      write(fd, "1", 1);
+      close(fd);
+      fd = open("/sys/class/pwm/pwmchip0/pwm0/polarity", O_WRONLY);
+      write(fd, "inversed", 8);
+      close(fd);
+    }
+    else{
+      fd = open("/sys/class/gpio/gpio24/value", O_WRONLY);
+      write(fd, "0", 1);
+      close(fd);
+      fd = open("/sys/class/pwm/pwmchip0/pwm0/polarity", O_WRONLY);
+      write(fd, "normal", 6);
+      close(fd);
+    }
+    int fd = open("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", O_WRONLY);
+    sprintf(pi_output_string, "%d", (int)new_duty);
     write(fd, pi_output_string, 6);
     close(fd);
     printf("Current RPM: %f\n", current_rpm);   
+    //every 10 seconds invert the ref 
+
+    
   }
-  // if (millis() % 3000 < 30){
-  //   ref_rpm == 50.0 ? ref_rpm = 90.0 : ref_rpm = 50.0;
-  // }
 }
 

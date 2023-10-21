@@ -13,9 +13,9 @@ double PI_controller::update(double ref, double actual)
     double output = 0.0;
     // integral = 0.0;
     output = Kp * (error + (1 / integration_time) * integral);
-    if (output <= 0)
+    if (output <= -120)
     {
-        output = 0;
+        output = -120;
         is_saturated = true;
     }
     else if (output >= 120)
